@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stack Ranking Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="dashboard">
+      <div class="topbar">
+        <div class="title-wrap">
+          <h1 class="report-title">October 2026 Stack Ranking</h1>
+        </div>
+
+        <div class="month-pills">
+          <button class="month-pill" data-month="August 2026">August 2026</button>
+          <button class="month-pill" data-month="September 2026">September 2026</button>
+          <button class="month-pill active" data-month="October 2026">October 2026</button>
+        </div>
+      </div>
+
+      <div class="report-helper">
+        <strong>Select team(s)</strong> below to filter. Clear button selection to view all results.
+      </div>
+
+      <!--<div id="agentSummary" class="agent-summary">
+        <h3>Summary</h3>
+        <div class="summary-grid">
+          <div class="summary-card">
+            <span class="label">Total Agents</span>
+            <span class="value">40</span>
+          </div>
+          <div class="summary-card">
+            <span class="label">Avg Overall</span>
+            <span class="value">4.24</span>
+          </div>
+          <div class="summary-card">
+            <span class="label">Avg Attendance</span>
+            <span class="value">98.51%</span>
+          </div>
+        </div>
+      </div>-->
+
+      <div class="region-tabs">
+        <button class="region-tab" data-region="India">India</button>
+        <button class="region-tab" data-region="Tier 2">Tier 2</button>
+        <button class="region-tab" data-region="US">US</button>
+      </div>
+
+      
+
+      <div class="table-card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Agent Name</th>
+                <th>Overall Ratings</th>
+                <th>Average QA</th>
+                <th>Survey Ratings</th>
+                <th>Average Logging</th>
+                <th>Average Adherence</th>
+                <th>Ring No Answer</th>
+                <th>Avg Handle Time</th>
+                <th>Average Attendance</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
