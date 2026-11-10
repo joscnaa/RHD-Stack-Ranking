@@ -106,39 +106,41 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const render = () => {
-    const filtered = agents.filter((agent) => {
-      if (!activeRegion) {
+    const filtered = agents
+      .filter((agent) => {
+        if (!activeRegion) {
+          return true;
+        }
+
+        const name = String(agent["Agent Name"] || "").trim();
+        const matchesTier2 = tier2Names.some((tier2Name) => {
+          const target = tier2Name.toLowerCase();
+          const actual = name.toLowerCase();
+          return actual === target || actual.includes(target) || target.includes(actual);
+        });
+
+        if (activeRegion === "Tier 2") {
+          return matchesTier2;
+        }
+        if (activeRegion === "US") {
+          const matchesUs = usNames.some((usName) => {
+            const target = usName.toLowerCase();
+            const actual = name.toLowerCase();
+            return actual === target || actual.includes(target) || target.includes(actual);
+          });
+          return matchesUs;
+        }
+        if (activeRegion === "India") {
+          const matchesIndia = indiaNames.some((indiaName) => {
+            const target = indiaName.toLowerCase();
+            const actual = name.toLowerCase();
+            return actual === target || actual.includes(target) || target.includes(actual);
+          });
+          return matchesIndia;
+        }
         return true;
-      }
-
-      const name = String(agent["Agent Name"] || "").trim();
-      const matchesTier2 = tier2Names.some((tier2Name) => {
-        const target = tier2Name.toLowerCase();
-        const actual = name.toLowerCase();
-        return actual === target || actual.includes(target) || target.includes(actual);
-      });
-
-      if (activeRegion === "Tier 2") {
-        return matchesTier2;
-      }
-      if (activeRegion === "US") {
-        const matchesUs = usNames.some((usName) => {
-          const target = usName.toLowerCase();
-          const actual = name.toLowerCase();
-          return actual === target || actual.includes(target) || target.includes(actual);
-        });
-        return matchesUs;
-      }
-      if (activeRegion === "India") {
-        const matchesIndia = indiaNames.some((indiaName) => {
-          const target = indiaName.toLowerCase();
-          const actual = name.toLowerCase();
-          return actual === target || actual.includes(target) || target.includes(actual);
-        });
-        return matchesIndia;
-      }
-      return true;
-    });
+      })
+      .sort((a, b) => Number(b["Overall Ratings"]) - Number(a["Overall Ratings"]));
 
     tableBody.innerHTML = filtered
       .map((agent) => {
@@ -153,7 +155,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return `
           <tr>
             <td>${escapeHtml(agent["Agent Name"])}</td>
-            <td class="${getMetricClass("overall", overall)}">${formatNumber(overall)}</td>
+            <td style="${getOverallRatingStyle(overall)}">${formatNumber(overall)}</td>
             <td class="${getMetricClass("qa", qa)}">${formatPercent(qa)}</td>
             <td class="${survey === "" ? "" : getMetricClass("survey", survey)}">${survey === "" ? "" : formatNumber(survey)}</td>
             <td class="${getMetricClass("logging", logging)}">${formatPercent(logging)}</td>
@@ -222,13 +224,18 @@ function renderTotalRow(rows) {
   `;
 }
 
+function getOverallRatingStyle(value) {
+  if (value <= 1.99) return "background-color: #BE5014; color: #111111; font-weight: 600;";
+  if (value <= 2.99) return "background-color: #FFC000; color: #111111; font-weight: 600;";
+  if (value <= 3.99) return "background-color: #FFFF00; color: #111111; font-weight: 600;";
+  if (value <= 4.49) return "background-color: #A6C9EC; color: #111111; font-weight: 600;";
+  if (value <= 4.8) return "background-color: #00B0F0; color: #111111; font-weight: 600;";
+  return "background-color: rgba(122, 207, 114, 0.92); color: #111111; font-weight: 600;";
+}
+
 function getMetricClass(metric, value) {
   if (metric === "overall") {
-    if (value >= 4.6) return "cell-green";
-    if (value >= 4.0) return "cell-blue";
-    if (value >= 3.5) return "cell-yellow";
-    if (value >= 3.0) return "cell-orange";
-    return "cell-red";
+    return "";
   }
 
   if (metric === "qa") {
