@@ -69,7 +69,7 @@
     "Agent Name": "Marie Koroma",
     "Overall Ratings": "5.00",
     "Average QA": "1",
-    "Survey Ratings": "",
+    "Survey Ratings": null,
     "Average Logging": "1",
     "Average Adherence": "1",
     "Ring No Answer": "1",
@@ -493,16 +493,5 @@
     "Ring No Answer": "1",
     "Avg Handle Time": "00:20:32",
     "Average Attendance": "0.947491087"
-  },
-  {
-    "Agent Name": "Total",
-    "Overall Ratings": "4.24",
-    "Average QA": "0.909347826",
-    "Survey Ratings": "4.66",
-    "Average Logging": "0.99225224",
-    "Average Adherence": "0.989462738",
-    "Ring No Answer": "1",
-    "Avg Handle Time": "00:14:10",
-    "Average Attendance": "0.978734278"
   }
 ]
