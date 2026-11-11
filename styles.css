@@ -102,6 +102,30 @@ body {
   padding: 8px 0 16px;
 }
 
+.top-actions {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.export-btn {
+  background: #1f84c9;
+  border: 1px solid #1f84c9;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.export-btn:hover {
+  background: #166ea8;
+  border-color: #166ea8;
+}
+
 .title-wrap {
   display: flex;
   justify-content: center;
@@ -433,6 +457,16 @@ body {
     transform: none;
     width: 100%;
     flex-wrap: wrap;
+  }
+
+  .top-actions {
+    position: static;
+    transform: none;
+    width: 100%;
+  }
+
+  .export-btn {
+    width: 100%;
   }
 
   .report-helper {
