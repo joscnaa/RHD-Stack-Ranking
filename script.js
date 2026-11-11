@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const monthButtons = document.querySelectorAll(".month-pill");
   const regionButtons = document.querySelectorAll(".region-tab");
   const reportTitle = document.querySelector(".report-title");
+  const exportCsvBtn = document.getElementById("exportCsvBtn");
 
   if (!tableBody) {
     return;
@@ -70,6 +71,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let agents = [];
   let activeRegion = null;
+  let activeMonth = "October 2026";
 
   const setMonthButtonState = (selectedMonth) => {
     monthButtons.forEach((btn) => {
@@ -93,6 +95,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         throw new Error(`Unable to load ${fileName}`);
       }
       agents = await response.json();
+      activeMonth = selectedMonth;
       setMonthButtonState(selectedMonth);
       render();
     } catch (error) {
@@ -105,8 +108,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
 
-  const render = () => {
-    const filtered = agents
+  const getFilteredAgents = () => {
+    return agents
       .filter((agent) => {
         if (!activeRegion) {
           return true;
@@ -141,6 +144,73 @@ document.addEventListener("DOMContentLoaded", async () => {
         return true;
       })
       .sort((a, b) => Number(b["Overall Ratings"]) - Number(a["Overall Ratings"]));
+  };
+
+  const getExportRows = () => {
+    const rows = getFilteredAgents();
+
+    const dataRows = rows.map((agent) => {
+      const survey = agent["Survey Ratings"] == null ? "" : formatNumber(agent["Survey Ratings"]);
+      const ringNoAnswer = Number(agent["Ring No Answer"] || 0);
+      return [
+        String(agent["Agent Name"] || ""),
+        formatNumber(agent["Overall Ratings"]),
+        formatPercent(agent["Average QA"]),
+        survey,
+        formatPercent(agent["Average Logging"]),
+        formatPercent(agent["Average Adherence"]),
+        ringNoAnswer >= 1 ? "100%" : String(ringNoAnswer),
+        String(agent["Avg Handle Time"] || ""),
+        formatPercent(agent["Average Attendance"])
+      ];
+    });
+
+    if (rows.length) {
+      dataRows.push(getTotalRowValues(rows));
+    }
+
+    return dataRows;
+  };
+
+  const csvEscape = (value) => {
+    const text = String(value ?? "");
+    const needsQuotes = /[",\n]/.test(text);
+    const escaped = text.replace(/"/g, '""');
+    return needsQuotes ? `"${escaped}"` : escaped;
+  };
+
+  const exportVisibleTableToCsv = () => {
+    const headers = [
+      "Agent Name",
+      "Overall Ratings",
+      "Average QA",
+      "Survey Ratings",
+      "Average Logging",
+      "Average Adherence",
+      "Ring No Answer",
+      "Avg Handle Time",
+      "Average Attendance"
+    ];
+
+    const rows = getExportRows();
+    const csvLines = [headers, ...rows].map((row) => row.map(csvEscape).join(","));
+    const csv = csvLines.join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const regionLabel = activeRegion ? activeRegion.replace(/\s+/g, "-") : "All";
+    const monthLabel = (activeMonth || "month").replace(/\s+/g, "-");
+
+    link.href = url;
+    link.download = `${monthLabel}-${regionLabel}-stack-ranking.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const render = () => {
+    const filtered = getFilteredAgents();
 
     tableBody.innerHTML = filtered
       .map((agent) => {
@@ -194,6 +264,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener("click", exportVisibleTableToCsv);
+  }
+
   await loadMonthData("October 2026");
 });
 
@@ -202,6 +276,24 @@ function renderTotalRow(rows) {
     return "";
   }
 
+  const values = getTotalRowValues(rows);
+
+  return `
+    <tr class="total-row">
+      <td>${values[0]}</td>
+      <td>${values[1]}</td>
+      <td>${values[2]}</td>
+      <td>${values[3]}</td>
+      <td>${values[4]}</td>
+      <td>${values[5]}</td>
+      <td>${values[6]}</td>
+      <td>${values[7]}</td>
+      <td>${values[8]}</td>
+    </tr>
+  `;
+}
+
+function getTotalRowValues(rows) {
   const averageOverall = rows.reduce((sum, row) => sum + Number(row["Overall Ratings"]), 0) / rows.length;
   const averageQA = rows.reduce((sum, row) => sum + Number(row["Average QA"]), 0) / rows.length;
   const averageSurvey = rows.reduce((sum, row) => sum + (row["Survey Ratings"] == null ? 0 : Number(row["Survey Ratings"])), 0) / rows.filter((row) => row["Survey Ratings"] != null).length || 0;
@@ -209,19 +301,17 @@ function renderTotalRow(rows) {
   const averageAdherence = rows.reduce((sum, row) => sum + Number(row["Average Adherence"]), 0) / rows.length;
   const averageAttendance = rows.reduce((sum, row) => sum + Number(row["Average Attendance"]), 0) / rows.length;
 
-  return `
-    <tr class="total-row">
-      <td>Total</td>
-      <td>${formatNumber(averageOverall)}</td>
-      <td>${formatPercent(averageQA)}</td>
-      <td>${formatNumber(averageSurvey)}</td>
-      <td>${formatPercent(averageLogging)}</td>
-      <td>${formatPercent(averageAdherence)}</td>
-      <td>100%</td>
-      <td>00:13:41</td>
-      <td>${formatPercent(averageAttendance)}</td>
-    </tr>
-  `;
+  return [
+    "Total",
+    formatNumber(averageOverall),
+    formatPercent(averageQA),
+    formatNumber(averageSurvey),
+    formatPercent(averageLogging),
+    formatPercent(averageAdherence),
+    "100%",
+    "00:13:41",
+    formatPercent(averageAttendance)
+  ];
 }
 
 function getOverallRatingStyle(value) {
