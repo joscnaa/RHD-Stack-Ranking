@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const usNames = [
     "Mary Goodwin Freeling",
     "Reggie Jackson",
-    "Simon Cassetvens",
+    "Simon Casstevens",
     "Razah Stewart",
     "Alexander Gordon",
     "Jerrod Graham",
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "Bryanna Harris",
     "Daniel Alvarez",
     "Luke Hill",
-    "Gabriel Moju",
+    "Gabriel Mozu",
     "James Hayles"
   ];
 
